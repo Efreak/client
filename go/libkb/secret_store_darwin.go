@@ -70,6 +70,9 @@ func HasSecretStore() bool {
 	return true
 }
 
+func UseMockSecretStore(bool) {
+}
+
 func GetUsersWithStoredSecrets(c SecretStoreContext) ([]string, error) {
 	return keychain.GetAccountsForService(c.GetStoredSecretServiceName())
 }

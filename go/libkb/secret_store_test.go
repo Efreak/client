@@ -4,44 +4,12 @@
 package libkb
 
 import (
-	"errors"
 	"fmt"
+	"sort"
 	"testing"
 )
 
-// Used by tests that want to mock out the secret store.
-type TestSecretStore struct {
-	Secret []byte
-}
-
-func (tss *TestSecretStore) RetrieveSecret() ([]byte, error) {
-	G.Log.Debug("| TestSecretStore::RetrieveSecret(%d)", len(tss.Secret))
-
-	if len(tss.Secret) == 0 {
-		return nil, errors.New("No secret to retrieve")
-	}
-
-	return tss.Secret, nil
-}
-
-func (tss *TestSecretStore) StoreSecret(secret []byte) error {
-	G.Log.Debug("| TestSecretStore::StoreSecret(%d)", len(secret))
-
-	tss.Secret = secret
-	return nil
-}
-
-func (tss *TestSecretStore) ClearSecret() error {
-	G.Log.Debug("| TestSecretStore::ClearSecret()")
-
-	tss.Secret = nil
-	return nil
-}
-
 func TestSecretStoreOps(t *testing.T) {
-	if !HasSecretStore() {
-		t.Skip("Skipping test since there is no secret store")
-	}
 
 	tc := SetupTest(t, "secret store ops")
 	defer tc.Cleanup()
@@ -50,8 +18,14 @@ func TestSecretStoreOps(t *testing.T) {
 	expectedSecret1 := []byte("test secret 1")
 	expectedSecret2 := []byte("test secret 2")
 
+	// Use the mock if this platform has no secret store
+	if !HasSecretStore() {
+		UseMockSecretStore(true)
+		defer func() {
+			UseMockSecretStore(false)
+		}()
+	}
 	secretStore := NewSecretStore(tc.G, nu)
-
 	var err error
 
 	if err = secretStore.ClearSecret(); err != nil {
@@ -99,8 +73,13 @@ func TestSecretStoreOps(t *testing.T) {
 }
 
 func TestGetUsersWithStoredSecrets(t *testing.T) {
+
+	// Use the mock if this platform has no secret store
 	if !HasSecretStore() {
-		t.Skip("Skipping test since there is no secret store")
+		UseMockSecretStore(true)
+		defer func() {
+			UseMockSecretStore(false)
+		}()
 	}
 
 	tc := SetupTest(t, "get users with stored secrets")
@@ -131,6 +110,9 @@ func TestGetUsersWithStoredSecrets(t *testing.T) {
 	if len(usernames) != len(expectedUsernames) {
 		t.Errorf("Expected %d usernames, got %d", len(expectedUsernames), len(usernames))
 	}
+
+	// TODO: were these supposed to already be in order?
+	sort.Strings(usernames)
 
 	for i := 0; i < len(usernames); i++ {
 		if usernames[i] != expectedUsernames[i] {

@@ -71,6 +71,9 @@ func HasSecretStore() bool {
 	return getGlobalExternalKeyStore() != nil
 }
 
+func UseMockSecretStore(bool) {
+}
+
 func GetUsersWithStoredSecrets(c SecretStoreContext) ([]string, error) {
 	externalKeyStore := getGlobalExternalKeyStore()
 	if externalKeyStore == nil {

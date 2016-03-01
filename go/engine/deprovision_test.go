@@ -49,6 +49,15 @@ func TestDeprovision(t *testing.T) {
 	// secret store (if possible).
 	fu := NewFakeUserOrBust(tc.T, "dpr")
 	arg := MakeTestSignupEngineRunArg(fu)
+
+	// Use the mock if this platform has no secret store
+	if !libkb.HasSecretStore() {
+		libkb.UseMockSecretStore(true)
+		defer func() {
+			libkb.UseMockSecretStore(false)
+		}()
+	}
+
 	arg.StoreSecret = libkb.HasSecretStore()
 	ctx := &Context{
 		LogUI:    tc.G.UI.GetLogUI(),
@@ -62,12 +71,10 @@ func TestDeprovision(t *testing.T) {
 		tc.T.Fatal(err)
 	}
 
-	if libkb.HasSecretStore() {
-		secretStore := libkb.NewSecretStore(tc.G, fu.NormalizedUsername())
-		_, err := secretStore.RetrieveSecret()
-		if err != nil {
-			t.Fatal(err)
-		}
+	secretStore := libkb.NewSecretStore(tc.G, fu.NormalizedUsername())
+	_, err = secretStore.RetrieveSecret()
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	dbPath := tc.G.Env.GetDbFilename()
@@ -130,10 +137,19 @@ func TestDeprovisionLoggedOut(t *testing.T) {
 	tc := SetupEngineTest(t, "deprovision")
 	defer tc.Cleanup()
 
+	// Use the mock if this platform has no secret store
+	if !libkb.HasSecretStore() {
+		libkb.UseMockSecretStore(true)
+		defer func() {
+			libkb.UseMockSecretStore(false)
+		}()
+	}
+
 	// Sign up a new user and have it store its secret in the
 	// secret store (if possible).
 	fu := NewFakeUserOrBust(tc.T, "dpr")
 	arg := MakeTestSignupEngineRunArg(fu)
+
 	arg.StoreSecret = libkb.HasSecretStore()
 	ctx := &Context{
 		LogUI:    tc.G.UI.GetLogUI(),
@@ -219,6 +235,14 @@ func TestDeprovisionLoggedOut(t *testing.T) {
 func TestCurrentDeviceRevoked(t *testing.T) {
 	tc := SetupEngineTest(t, "deprovision")
 	defer tc.Cleanup()
+
+	// Use the mock if this platform has no secret store
+	if !libkb.HasSecretStore() {
+		libkb.UseMockSecretStore(true)
+		defer func() {
+			libkb.UseMockSecretStore(false)
+		}()
+	}
 
 	// Sign up a new user and have it store its secret in the
 	// secret store (if possible).

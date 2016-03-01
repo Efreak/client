@@ -295,10 +295,13 @@ func userHasStoredSecret(tc *libkb.TestContext, username string) bool {
 
 // Test that the login flow using the secret store works.
 func TestLoginWithStoredSecret(t *testing.T) {
-	// TODO: Get this working on non-OS X platforms (by mocking
-	// out the SecretStore).
+
+	// Use the mock if this platform has no secret store
 	if !libkb.HasSecretStore() {
-		t.Skip("Skipping test since there is no secret store")
+		libkb.UseMockSecretStore(true)
+		defer func() {
+			libkb.UseMockSecretStore(false)
+		}()
 	}
 
 	tc := SetupEngineTest(t, "login with stored secret")
@@ -386,10 +389,13 @@ func TestLoginWithPassphraseErrors(t *testing.T) {
 // Test that the login flow with passphrase but without saving the
 // secret works.
 func TestLoginWithPassphraseNoStore(t *testing.T) {
-	// TODO: Get this working on non-OS X platforms (by mocking
-	// out the SecretStore).
+
+	// Use the mock if this platform has no secret store
 	if !libkb.HasSecretStore() {
-		t.Skip("Skipping test since there is no secret store")
+		libkb.UseMockSecretStore(true)
+		defer func() {
+			libkb.UseMockSecretStore(false)
+		}()
 	}
 
 	tc := SetupEngineTest(t, "login with passphrase (no store)")
@@ -416,10 +422,13 @@ func TestLoginWithPassphraseNoStore(t *testing.T) {
 // Test that the login flow with passphrase and with saving the secret
 // works.
 func TestLoginWithPassphraseWithStore(t *testing.T) {
-	// TODO: Get this working on non-OS X platforms (by mocking
-	// out the SecretStore).
+
+	// Use the mock if this platform has no secret store
 	if !libkb.HasSecretStore() {
-		t.Skip("Skipping test since there is no secret store")
+		libkb.UseMockSecretStore(true)
+		defer func() {
+			libkb.UseMockSecretStore(false)
+		}()
 	}
 
 	tc := SetupEngineTest(t, "login with passphrase (with store)")
@@ -462,10 +471,13 @@ func TestLoginWithPassphraseWithStore(t *testing.T) {
 // Test that the signup with saving the secret, logout, then login
 // flow works.
 func TestSignupWithStoreThenLogin(t *testing.T) {
-	// TODO: Get this working on non-OS X platforms (by mocking
-	// out the SecretStore).
+
+	// Use the mock if this platform has no secret store
 	if !libkb.HasSecretStore() {
-		t.Skip("Skipping test since there is no secret store")
+		libkb.UseMockSecretStore(true)
+		defer func() {
+			libkb.UseMockSecretStore(false)
+		}()
 	}
 
 	tc := SetupEngineTest(t, "signup with store then login")

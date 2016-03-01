@@ -239,10 +239,13 @@ func Logout(tc libkb.TestContext) {
 func testEngineWithSecretStore(
 	t *testing.T,
 	runEngine func(libkb.TestContext, *FakeUser, libkb.SecretUI)) {
-	// TODO: Get this working on non-OS X platforms (by mocking
-	// out the SecretStore).
+
+	// Use the mock if this platform has no secret store
 	if !libkb.HasSecretStore() {
-		t.Skip("Skipping test since there is no secret store")
+		libkb.UseMockSecretStore(true)
+		defer func() {
+			libkb.UseMockSecretStore(false)
+		}()
 	}
 
 	tc := SetupEngineTest(t, "wss")
