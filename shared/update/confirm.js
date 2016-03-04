@@ -167,13 +167,5 @@ const styles = {
 }
 
 export default connect(
-  state => state.updateConfirm,
-    undefined,
-    (stateProps, dispatchProps, ownProps) => {
-      return {
-        ...stateProps,
-        ...dispatchProps,
-        ...ownProps
-      }
-    }
+  state => state.updateConfirm
 )(UpdateConfirm)
